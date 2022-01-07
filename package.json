@@ -1,6 +1,6 @@
 {
   "name": "tepkijs-client",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Remote stores powered by Socket.IO with a Vue/Vuex like syntax in the backend.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -17,7 +17,7 @@
   "license": "GPLv3",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Levyks/tepkijs.git"
+    "url": "https://github.com/Levyks/tepklient.gijs-cit"
   },
   "dependencies": {
     "socket.io-client": "^4.4.1",
