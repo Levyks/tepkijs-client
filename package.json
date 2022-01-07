@@ -1,0 +1,29 @@
+{
+  "name": "tepkijs-client",
+  "version": "0.0.1",
+  "description": "Remote stores powered by Socket.IO with a Vue/Vuex like syntax in the backend.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "store",
+    "state",
+    "socket.io"
+  ],
+  "author": "Levy Barbosa <marcio.levy20@gmail.com>",
+  "license": "GPLv3",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Levyks/tepkijs.git"
+  },
+  "dependencies": {
+    "socket.io-client": "^4.4.1",
+    "svelte": "^3.45.0"
+  },
+  "devDependencies": {
+    "typescript": "^4.5.4"
+  }
+}
