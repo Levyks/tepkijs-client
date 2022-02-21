@@ -1,4 +1,4 @@
-import { io } from 'socket.io-client';
+import { io, Socket } from 'socket.io-client';
 import type { ManagerOptions, SocketOptions } from 'socket.io-client';
 import type { Path } from './typings';
 import { writable } from 'svelte/store';
@@ -42,36 +42,11 @@ function applyDiff(schema: any, paths: Path[], value: any) {
 
 }
 
-export function createStore<T>(name: string, path?: string, opts?: Partial<ManagerOptions & SocketOptions>): TepkiStore<T> {
-
-  if(!path.endsWith('/')) path += '/';
-
-  const socket = io(`${path}tepki/${name}`, opts);
-
-  const { subscribe, update, set } = writable({ isConnected: false } as TepkiState<T>);
-
-  socket.on('connect', () => {
-    update(state => ({ ...state, isConnected: true }));
-  });
-
-  socket.on('disconnect', () => {
-    update(state => ({ ...state, isConnected: false }));
-  });
-
-  socket.on('state', (state: T) => {
-    set(Object.assign(state, { isConnected: true }));
-  });
-
-  socket.on('change', (diff: {path: Path[], value: any}) => {
-    update(state => {
-      applyDiff(state, diff.path, diff.value);
-      return state;
-    });
-  });
+export function createStore<T>(name?: string, url?: string, opts?: Partial<ManagerOptions & SocketOptions>): TepkiStore<T> {
 
   async function call(method: string, ...args: any[]) {
     return new Promise((resolve, reject) => {
-      socket.emit('call', {
+      store.socket.emit('call', {
         method,
         args
       }, (success, result) => {
@@ -81,15 +56,54 @@ export function createStore<T>(name: string, path?: string, opts?: Partial<Manag
     });
   }
 
-  return {
-    subscribe,
-    update,
-    set,
-    connect: socket.connect,
-    disconnect: socket.disconnect,
+  const store = {
+    ...writable({ isConnected: false } as TepkiState<T>),
+    socket: null as Socket,
     call,
-    socket
+    connect,
   }
+
+  function connect(name: string, url?: string, opts?: Partial<ManagerOptions & SocketOptions>): Promise<TepkiStore<T>> {
+
+    return new Promise((resolve, reject) => {
+
+      if(!url.endsWith('/')) url += '/';
+
+      if(store.socket) store.socket.close();
+
+      store.socket = io(`${url}tepki/${name}`, opts);
+  
+      store.socket.on('connect', () => {
+        store.update(state => ({ ...state, isConnected: true }));
+        resolve(store);
+      });
+
+      store.socket.once('connect_error', (err) => {
+        reject(err)
+      });
+    
+      store.socket.on('disconnect', () => {
+        store.update(state => ({ ...state, isConnected: false }));
+      });
+    
+      store.socket.on('state', (state: T) => {
+        store.set(Object.assign(state, { isConnected: true }));
+      });
+    
+      store.socket.on('change', (diff: {path: Path[], value: any}) => {
+        store.update(state => {
+          applyDiff(state, diff.path, diff.value);
+          return state;
+        });
+      });
+
+    });
+  
+  }
+  
+  if(name) connect(name, url, opts);
+
+  return store;
 
 }
 

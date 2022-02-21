@@ -1,6 +1,6 @@
 {
   "name": "tepkijs-client",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Remote stores powered by Socket.IO with a Vue/Vuex like syntax in the backend.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
